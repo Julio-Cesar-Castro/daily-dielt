@@ -5,6 +5,27 @@ import { randomUUID } from 'node:crypto'
 import { validationTokenId } from '../middlewares/validationTokenId'
 
 export async function dietRoutes(app: FastifyInstance) {
+  // User Creation
+
+  // List User
+  app.get('/user', (request, reply) => {})
+
+  // List User ID
+  app.get('/user/:id', () => {})
+
+  // Create User
+  app.post('/user', () => {})
+
+  // DIET CRUD
+
+  // List User
+  app.get('/lunchs', async () => {
+    const lunchs = await knex('lunchs').select()
+
+    return lunchs
+  })
+
+  // List Lunchs ID
   app.get(
     '/lunchs/:id',
     {
@@ -19,6 +40,7 @@ export async function dietRoutes(app: FastifyInstance) {
     },
   )
 
+  // Create a Diet Register
   app.post(
     '/lunchs',
     {
@@ -87,6 +109,28 @@ export async function dietRoutes(app: FastifyInstance) {
       })
 
       return reply.status(200).send('Success to edit your message')
+    },
+  )
+
+  app.delete(
+    '/lunchs/:id/delete',
+    {
+      preHandler: [validationTokenId],
+    },
+    async (request, reply) => {
+      const idBodySchema = z.object({
+        id: z.string().uuid(),
+      })
+
+      const { id } = idBodySchema.parse(request.params)
+
+      await knex('lunchs')
+        .where({
+          id,
+        })
+        .del('*')
+
+      return reply.status(201).send('Your Lunch was deleted as success ✅')
     },
   )
 }

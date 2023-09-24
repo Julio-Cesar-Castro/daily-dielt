@@ -11,10 +11,10 @@ Date and time -> Date(), 00h00
 Is the lunch inside the diet daily or not -> Boolean
 }
 
-[ ] -> It should be possible to edit an lunch, to edit all the object up
-[ ] -> It should be possible to delete an lunch
-[ ] -> It should be possible to list all the user's lunchs
-[ ] -> It should be possible to see an unique lunch
+[x] -> It should be possible to edit an lunch, to edit all the object up
+[x] -> It should be possible to delete an lunch
+[x] -> It should be possible to list all the user's lunchs
+[x] -> It should be possible to see an unique lunch
 [ ] -> It should be possible to recovery the metrics of and user:
 
 {
