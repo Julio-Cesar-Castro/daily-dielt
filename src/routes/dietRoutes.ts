@@ -70,19 +70,20 @@ export async function dietRoutes(app: FastifyInstance) {
         onDietOrNot: z.boolean(),
       })
 
+      const idLunchSchema = z.object({
+        id: z.string().uuid(),
+      })
+
+      const { id } = idLunchSchema.parse(request.params)
+
       const { name, description, onDietOrNot } = editLunchsBodySchema.parse(
         request.body,
       )
 
-      await knex('lunchs').update({
-        where: {
-          id, // find a way to rescue this id from Database, that is the error.
-        },
-        data: {
-          name,
-          description,
-          onDietOrNot,
-        },
+      await knex('lunchs').where({ id }).update({
+        name,
+        description,
+        onDietOrNot,
       })
 
       return reply.status(200).send('Success to edit your message')
