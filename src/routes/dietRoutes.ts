@@ -8,13 +8,36 @@ export async function dietRoutes(app: FastifyInstance) {
   // User Creation
 
   // List User
-  app.get('/user', (request, reply) => {})
+  app.get('/user', async (request, reply) => {
+    const users = await knex('user').select('*')
+
+    if (!users) {
+      return
+    }
+
+    return users
+  })
 
   // List User ID
-  app.get('/user/:id', () => {})
+  // app.get('/user/:id', async () => {})
 
   // Create User
-  app.post('/user', () => {})
+  app.post('/user', async (request, reply) => {
+    const userBodySchema = z.object({
+      username: z.string(),
+      password: z.string(),
+    })
+
+    const { username, password } = userBodySchema.parse(request.body)
+
+    await knex('user').insert({
+      userId: randomUUID(),
+      username,
+      password,
+    })
+
+    return reply.status(201).send('User Creation with Success')
+  })
 
   // DIET CRUD
 
@@ -80,6 +103,8 @@ export async function dietRoutes(app: FastifyInstance) {
     },
   )
 
+  // Edit Lunchs
+
   app.put(
     '/lunchs/:id',
     {
@@ -111,6 +136,8 @@ export async function dietRoutes(app: FastifyInstance) {
       return reply.status(200).send('Success to edit your message')
     },
   )
+
+  // Delete Lunchs
 
   app.delete(
     '/lunchs/:id/delete',
