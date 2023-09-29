@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { knex } from '../database'
 import { randomUUID } from 'node:crypto'
 import { validationTokenId } from '../middlewares/validationTokenId'
+import { validationUserId } from '../middlewares/validationUserId'
 
 export async function dietRoutes(app: FastifyInstance) {
   // User Creation
@@ -50,14 +51,20 @@ export async function dietRoutes(app: FastifyInstance) {
 
   // List Lunchs ID
   app.get(
-    '/lunchs/:id',
+    '/lunchs/:userId',
     {
-      preHandler: [validationTokenId],
+      preHandler: [validationUserId],
     },
     async (request) => {
-      const { tokenId } = request.cookies
+      // const { tokenId } = request.cookies
 
-      const lunchs = await knex('lunchs').where('token_id', tokenId).select()
+      const userParamsSchema = z.object({
+        userId: z.string().uuid().nonempty(),
+      })
+
+      const { userId } = userParamsSchema.parse(request.params)
+
+      const lunchs = await knex('lunchs').where('userId', userId).select()
 
       return lunchs
     },
@@ -65,11 +72,25 @@ export async function dietRoutes(app: FastifyInstance) {
 
   // Create a Diet Register
   app.post(
-    '/lunchs',
+    '/lunchs/:userId',
     {
-      preHandler: [validationTokenId],
+      preHandler: [validationUserId],
     },
     async (request, reply) => {
+      const userIdParamsSchema = z.object({
+        userId: z.string().uuid().nonempty(),
+      })
+
+      const { userId } = userIdParamsSchema.parse(request.params)
+
+      if (!userId) {
+        return reply
+          .status(401)
+          .send(
+            'It is not possible to create a diet register without being logged',
+          )
+      }
+
       const createLunchsBodySchema = z.object({
         name: z.string(),
         description: z.string(),
@@ -80,23 +101,12 @@ export async function dietRoutes(app: FastifyInstance) {
         request.body,
       )
 
-      let tokenId = request.cookies.tokenId
-
-      if (!tokenId) {
-        tokenId = randomUUID()
-
-        reply.cookie('tokenId', tokenId, {
-          path: '/',
-          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-        })
-      }
-
       await knex('lunchs').insert({
         id: randomUUID(),
         name,
         description,
         onDietOrNot,
-        token_Id: tokenId,
+        userId,
       })
 
       return reply.status(201).send()
