@@ -1,6 +1,6 @@
 # RF
 
-[ ] -> It should be possible create an user
+[x] -> It should be possible create an user
 [x] -> It should be possible to identify an user between the request
 [x] -> It should be possible to register a new lunch contains that informations:
 

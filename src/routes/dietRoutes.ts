@@ -7,9 +7,8 @@ import { validationUserId } from '../middlewares/validationUserId'
 
 export async function dietRoutes(app: FastifyInstance) {
   // User Creation
-
   // List User
-  app.get('/user', async (request, reply) => {
+  app.get('/user', async () => {
     const users = await knex('user').select('*')
 
     if (!users) {
@@ -20,7 +19,17 @@ export async function dietRoutes(app: FastifyInstance) {
   })
 
   // List User ID
-  // app.get('/user/:id', async () => {})
+  app.get('/user/:userId', async (request) => {
+    const userParamsSchema = z.object({
+      userId: z.string().uuid().nonempty(),
+    })
+
+    const { userId } = userParamsSchema.parse(request.params)
+
+    const users = await knex('user').where('userId', userId).select('*')
+
+    return users
+  })
 
   // Create User
   app.post('/user', async (request, reply) => {
@@ -41,7 +50,6 @@ export async function dietRoutes(app: FastifyInstance) {
   })
 
   // DIET CRUD
-
   // List User
   app.get('/lunchs', async () => {
     const lunchs = await knex('lunchs').select()
@@ -49,7 +57,20 @@ export async function dietRoutes(app: FastifyInstance) {
     return lunchs
   })
 
-  // List Lunchs ID
+  // List One Lunch by Id
+  app.get('/lunchs/list/:id', async (request) => {
+    const idParamsSchema = z.object({
+      id: z.string().uuid().nonempty(),
+    })
+
+    const { id } = idParamsSchema.parse(request.params)
+
+    const lunchs = await knex('lunchs').where('id', id).select().first()
+
+    return lunchs
+  })
+
+  // List All User Lunch
   app.get(
     '/lunchs/:userId',
     {
@@ -64,7 +85,7 @@ export async function dietRoutes(app: FastifyInstance) {
 
       const { userId } = userParamsSchema.parse(request.params)
 
-      const lunchs = await knex('lunchs').where('userId', userId).select()
+      const lunchs = await knex('lunchs').where('userId', userId).select('*')
 
       return lunchs
     },
@@ -170,4 +191,38 @@ export async function dietRoutes(app: FastifyInstance) {
       return reply.status(201).send('Your Lunch was deleted as success ✅')
     },
   )
+
+  // user metrics
+
+  app.get('/lunchs/:userId/metrics', async (request, reply) => {
+    const userParamsSchema = z.object({
+      userId: z.string().uuid().nonempty(),
+    })
+
+    const { userId } = userParamsSchema.parse(request.params)
+
+    const userLunchs = (
+      await knex('lunchs').where('userId', userId).select('*')
+    ).length
+
+    const userOnDiet = (
+      await knex('lunchs')
+        .where('onDietOrNot', true)
+        .where('userId', userId)
+        .select('*')
+    ).length
+
+    const userNotOnDiet = (
+      await knex('lunchs')
+        .where('onDietOrNot', false)
+        .where('userId', userId)
+        .select('*')
+    ).length
+
+    return {
+      'User Lunchs': userLunchs,
+      'On Diet': userOnDiet,
+      'Off Diet': userNotOnDiet,
+    }
+  })
 }
