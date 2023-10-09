@@ -1,34 +1,58 @@
-# RF
+# Como Testar
 
-[x] -> It should be possible create an user
-[x] -> It should be possible to identify an user between the request
-[x] -> It should be possible to register a new lunch contains that informations:
+Npm install - Para instalar as dependências
 
-{
-Name -> String
-Description -> String
-Date and time -> Date(), 00h00
-Is the lunch inside the diet daily or not -> Boolean
-}
+Npm run dev - Para inicializar o projeto
 
-[x] -> It should be possible to edit an lunch, to edit all the object up
-[x] -> It should be possible to delete an lunch
-[x] -> It should be possible to list all the user's lunchs
-[x] -> It should be possible to see an unique lunch
-[ ] -> It should be possible to recovery the metrics of and user:
+# Tecnologias Utilizadas
 
-{
-Quantity total lunchs registers
-Quantity total lunchs inside the diet
-Quantity total lunchs out of the diet
-Best sequence inside the diet
-}
+- NodeJs v18.16.0
+- TypeScript
+- KnexJs Sqlite3
+- Fastify
+- Zod
 
-[ ] -> It should be possible to edit only user that create the request ( edit, delete, view )
+# Objetivo do Projeto
 
-# RNF
+- API para controle de dieta diária.
 
-[ ] ->
-[ ] ->
-[ ] ->
-[ ] ->
+# Rotas
+
+## Criar Usuários
+
+- POST http://localhost:3333/user
+- GET http://localhost:3333/user
+
+## Rotas Autenticadas
+
+Criar Refeição
+- POST http://localhost:3333/diet/lunchs/:userId
+
+Listar Refeição
+- GET http://localhost:3333/diet/lunchs/:userId
+
+Editar Refeição
+- PUT http://localhost:3333/diet/lunchs/:userId/:id
+
+Deletar Refeição
+- DELETE http://localhost:3333/diet/lunchs/:id
+
+Resgatar Métricas de Usuário
+- GET http://localhost:3333/diet/lunchs/:userId/metrics
+
+## Rotas Não Autenticadas
+
+Criar Refeição
+- POST http://localhost:3333/diet/lunchs
+
+Listar Refeições
+- GET http://localhost:3333/diet/lunchs
+
+Listar Refeição Especifica
+- GET http://localhost:3333/diet/lunchs/list/:id
+
+Editar Refeição
+- PUT http://localhost:3333/diet/lunchs/:id
+
+Deletar Refeição
+- DELETE http://localhost:3333/diet/lunchs/:userId/:id
